@@ -44,6 +44,21 @@ class TweetController extends Controller
                     }
 
                     //guardamos el tweet
+
+                    //obtenemos el analisis del texto
+                    $text_client = new Client(['base_uri' => env('TEXT_SERVICE_ROUTE')]);
+                    $text_variables = $text_client->request('POST', 
+                        '/analyze',
+                        [
+                            'json' =>[
+                                'text' => $res_json->data->text
+                            ]
+                        ]
+                    );
+
+                    $text_variable_json =json_decode($text_variables->getBody());
+
+
                     $new_tweet=new Tweet();
                     $new_tweet->twitter_id = $res_json->data->id;
                     $new_tweet->text = $res_json->data->text;
@@ -51,10 +66,10 @@ class TweetController extends Controller
                     $new_tweet->likes = $res_json->data->public_metrics->like_count;
                     $new_tweet->replies = $res_json->data->public_metrics->reply_count;
                     $new_tweet->quotes = $res_json->data->public_metrics->quote_count;
-                    $new_tweet->polarity = 0;
-                    $new_tweet->subjectivity = 0;
-                    $new_tweet->toxicity_rate = 0;
-                    $new_tweet->claim_rate = 0;
+                    $new_tweet->polarity = $text_variable_json->polarity;
+                    $new_tweet->subjectivity = $text_variable_json->subj;
+                    $new_tweet->toxicity_rate = $text_variable_json->toxicity_score;
+                    $new_tweet->claim_rate = $text_variable_json->claim_score;
                     $new_tweet->posted_at = \DateTime::createFromFormat('Y-m-d\TH:i:s', substr_replace($res_json->data->created_at,"", -5));
                     $new_tweet->user()->associate($user);
                     $new_tweet->save();

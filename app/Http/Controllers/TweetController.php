@@ -7,6 +7,7 @@ use App\Models\Tweet;
 use App\Models\TwitterUser;
 use App\Models\Media;
 use App\Models\Hashtag;
+use App\Models\Annotation;
 use GuzzleHttp\Client;
 use DateTime;
 
@@ -17,7 +18,7 @@ class TweetController extends Controller
     {
         $tweet_id=get_tweet_id($request->input('tweetLink'));
         if($tweet_id!=-1){
-            //try {
+            try {
                 $tweet=Tweet::where('twitter_id',$tweet_id)->first();
                 //si no está en la base de datos
                 if (empty($tweet)){
@@ -32,18 +33,10 @@ class TweetController extends Controller
                         ]
                     );
                     $res_json=json_decode($res->getBody());
-
-                    //guardado del usuario
-                    $user = TwitterUser::where('twitter_id', $res_json->data->author_id)->first();
-
-                    if(empty($user)){
-                        $new_user=app('App\Http\Controllers\TwitterUserController')->create($res_json->data->author_id);
-                        $user = $new_user;
-                    }else{
-                        app('App\Http\Controllers\TwitterUserController')->updateStatus($user->id);
+                    
+                    if($res_json->data->lang!='es'){
+                        return back()->with('error','El idioma del tweet debe ser español');
                     }
-
-                    //guardamos el tweet
 
                     //obtenemos el analisis del texto
                     $text_client = new Client(['base_uri' => env('TEXT_SERVICE_ROUTE')]);
@@ -58,6 +51,17 @@ class TweetController extends Controller
 
                     $text_variable_json =json_decode($text_variables->getBody());
 
+                    //guardado del usuario
+                    $user = TwitterUser::where('twitter_id', $res_json->data->author_id)->first();
+
+                    if(empty($user)){
+                        $new_user=app('App\Http\Controllers\TwitterUserController')->create($res_json->data->author_id);
+                        $user = $new_user;
+                    }else{
+                        app('App\Http\Controllers\TwitterUserController')->updateStatus($user->id);
+                    }
+
+                    //guardamos el tweet
 
                     $new_tweet=new Tweet();
                     $new_tweet->twitter_id = $res_json->data->id;
@@ -69,7 +73,7 @@ class TweetController extends Controller
                     $new_tweet->polarity = $text_variable_json->polarity;
                     $new_tweet->subjectivity = $text_variable_json->subj;
                     $new_tweet->toxicity_rate = $text_variable_json->toxicity_score;
-                    $new_tweet->claim_rate = $text_variable_json->claim_score;
+                    $new_tweet->claim = $text_variable_json->claim;
                     $new_tweet->posted_at = \DateTime::createFromFormat('Y-m-d\TH:i:s', substr_replace($res_json->data->created_at,"", -5));
                     $new_tweet->user()->associate($user);
                     $new_tweet->save();
@@ -101,6 +105,23 @@ class TweetController extends Controller
                             }
                         }
                     }
+
+                    //guardamos todos las context annotations y los asociamos al tweet
+                    if(isset($res_json->data->context_annotations)){
+                        $annotations = $res_json->data->context_annotations;
+                        foreach ($annotations as $annotation) {
+                            $saved_annotation = Annotation::where('name',$annotation->entity->name)->first();
+                            if(empty($saved_annotation)){
+                                $saved_annotation = new Annotation();
+                                $saved_annotation->name=$annotation->entity->name;
+                                $saved_annotation->description=$annotation->domain->name;
+                                $saved_annotation->save();
+                                $saved_annotation->tweets()->attach($new_tweet);
+                            }else{
+                                $saved_annotation->tweets()->attach($new_tweet);
+                            }
+                        }
+                    }
                     
                     return json_decode($res->getBody());
                 }else{
@@ -108,12 +129,12 @@ class TweetController extends Controller
                     app('App\Http\Controllers\TwitterUserController')->updateStatus($tweet->user->id);
                     return 'OK';
                 }
-            /*} catch (\Throwable $th) {
-                return 'No se puede recuperar Tweet';
-            }*/
+            } catch (\Throwable $th) {
+                return back()->with('error','No se puede recuperar Tweet');
+            }
             
         }else{
-            return 'url inválida';
+            return back()->with('error','Url inválida');
         }
       
     }

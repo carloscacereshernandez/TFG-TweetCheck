@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TweetController;
+use App\Models\Tweet;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,8 @@ use App\Http\Controllers\TweetController;
 */
 
 Route::get('/', function () {
-    return view('home');
+    $tweets = Tweet::latest()->take(5)->get();
+    return view('home',compact('tweets'));
 });
 
 Route::post('/tweet', [TweetController::class, 'verifyTweet'])->name('verify');

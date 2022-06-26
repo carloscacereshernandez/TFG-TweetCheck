@@ -123,11 +123,11 @@ class TweetController extends Controller
                         }
                     }
                     
-                    return json_decode($res->getBody());
+                    return redirect()->route('tweet.detail',$new_tweet->id);
                 }else{
                     $this->updateTweet($tweet->id);
                     app('App\Http\Controllers\TwitterUserController')->updateStatus($tweet->user->id);
-                    return 'OK';
+                    return redirect()->route('tweet.detail',$tweet->id);
                 }
             } catch (\Throwable $th) {
                 return back()->with('error','No se puede recuperar Tweet');
@@ -137,6 +137,24 @@ class TweetController extends Controller
             return back()->with('error','Url inválida');
         }
       
+    }
+
+    public function viewTweet($id){
+        $tweet=Tweet::findOrFail($id);
+        $this->updateTweet($tweet->id);
+        app('App\Http\Controllers\TwitterUserController')->updateStatus($tweet->user->id);
+        $google_client = new Client(['base_uri' => env('GOOGLE_FACTCHECK_ROUTE')]);
+        $fact_checks=[];
+        foreach ($tweet->annotations as $a) {
+            $res = $google_client->request('GET', 
+                '/v1alpha1/claims:search?key='.env('GOOGLE_FACTCHECK_KEY').'&query='.$a->name.'&languageCode=es&pageSize=10&maxAgeDays=14'
+            );
+            $response = json_decode($res->getBody());
+            if(isset($response->claims)){
+                $fact_checks=array_merge($fact_checks,$response->claims);
+            }
+        }
+        return view('tweet-detail',compact('tweet','fact_checks'));
     }
 
     public function updateTweet($id) {

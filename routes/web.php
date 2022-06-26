@@ -18,6 +18,10 @@ use App\Models\Tweet;
 Route::get('/', function () {
     $tweets = Tweet::latest()->take(5)->get();
     return view('home',compact('tweets'));
-});
+})->name('home');
+Route::get('/verify', function () {
+    return view('verify');
+})->name('verify-form');
 
 Route::post('/tweet', [TweetController::class, 'verifyTweet'])->name('verify');
+Route::get('/verified-tweet/{id}', [TweetController::class, 'viewTweet'])->name('tweet.detail');

@@ -23,7 +23,7 @@
     <p class="mb-5">¡Descubre los últimos tweets verificados de la plataforma!</p>
 
     @foreach ($tweets as $tweet)
-        <a class="tweet-link" href="">
+        <a class="tweet-link" href="{{route('tweet.detail',$tweet->id)}}">
             <div class="card item mb-5 tweetCard">
                 <div class="card-body text-dark">
                     <div class="row mb-3 mx-2">
@@ -41,9 +41,9 @@
                     </div>
                 
                     <div class="row mx-2">
-                            <span><i class="fa-regular fa-images mr-2"></i> {{count($tweet->photos())}} </span>
-                            <span><i class="fa-solid fa-video ml-3 mr-2"></i> {{count($tweet->videos())}}  </span>
-                            <span><i class="fa fa-file-image-o ml-3 mr-2"></i> {{count($tweet->gifs())}} </span>
+                            @if(count($tweet->photos()))<span><i class="fa-regular fa-images mr-2"></i> {{count($tweet->photos())}} </span>@endif
+                            @if(count($tweet->videos()))<span><i class="fa-solid fa-video ml-3 mr-2"></i> {{count($tweet->videos())}}  </span>@endif
+                            @if(count($tweet->gifs()))<span><i class="fa fa-file-image-o ml-3 mr-2"></i> {{count($tweet->gifs())}} </span>@endif
                     </div>
                 </div>
             </div>

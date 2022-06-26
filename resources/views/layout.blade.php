@@ -59,10 +59,10 @@
     <div class="container menu-container">
         <ul class="nav nav-pills main-menu pr-5 pb-2 pt-1">
             <li class="nav-item">
-                <a class="nav-link active nav-menu-item" href="#"><i class="fa-solid fa-bell"></i> Últimos tweets</a>
+                <a class="nav-link @if(Request::path() === '/') active @endif nav-menu-item" href="{{route('home')}}"><i class="fa-solid fa-bell"></i> Últimos tweets</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-menu-item" href="#"><i class="fa-solid fa-magnifying-glass"></i> Verificar tweet</a>
+                <a class="nav-link nav-menu-item @if(Request::path() === 'verify') active @endif " href="{{route('verify-form')}}"><i class="fa-solid fa-magnifying-glass"></i> Verificar tweet</a>
             </li>
             <li class="nav-item nav-menu-item">
                 <a class="nav-link nav-menu-item" href="#"><i class="fa-solid fa-hashtag"></i> Hashtags</a>
@@ -76,7 +76,7 @@
     <div class="border-bottom border-light mt-n1 shadow-sm"></div>
     <!--MENU-->
 
-    <div class="container my-5">   
+    <div class="container my-5"  >   
         @yield('content')
     </div>
     <!-- Optional JavaScript -->

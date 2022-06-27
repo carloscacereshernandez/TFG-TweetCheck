@@ -18,7 +18,7 @@ class TweetController extends Controller
     {
         $tweet_id=get_tweet_id($request->input('tweetLink'));
         if($tweet_id!=-1){
-            try {
+            //try {
                 $tweet=Tweet::where('twitter_id',$tweet_id)->first();
                 //si no está en la base de datos
                 if (empty($tweet)){
@@ -118,7 +118,35 @@ class TweetController extends Controller
                                 $saved_annotation->save();
                                 $saved_annotation->tweets()->attach($new_tweet);
                             }else{
+                                $a_ids = [];
+                                foreach($new_tweet->annotations as $a){
+                                    array_push($a_ids,$a->id);
+                                    if(!in_array($saved_annotation->id,$a_ids)){
+                                        $saved_annotation->tweets()->attach($new_tweet);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if(isset($res_json->data->entities->annotations)){
+                        $annotations = $res_json->data->entities->annotations;
+                        foreach ($annotations as $annotation) {
+                            $saved_annotation = Annotation::where('name',$annotation->normalized_text)->first();
+                            if(empty($saved_annotation)){
+                                $saved_annotation = new Annotation();
+                                $saved_annotation->name=$annotation->normalized_text;
+                                $saved_annotation->description=$annotation->type;
+                                $saved_annotation->save();
                                 $saved_annotation->tweets()->attach($new_tweet);
+                            }else{
+                                $a_ids = [];
+                                foreach($new_tweet->annotations as $a){
+                                    array_push($a_ids,$a->id);
+                                }
+                                if(!in_array($saved_annotation->id,$a_ids)){
+                                    $saved_annotation->tweets()->attach($new_tweet);
+                                }
                             }
                         }
                     }
@@ -129,9 +157,9 @@ class TweetController extends Controller
                     app('App\Http\Controllers\TwitterUserController')->updateStatus($tweet->user->id);
                     return redirect()->route('tweet.detail',$tweet->id);
                 }
-            } catch (\Throwable $th) {
+            /*} catch (\Throwable $th) {
                 return back()->with('error','No se puede recuperar Tweet');
-            }
+            }*/
             
         }else{
             return back()->with('error','Url inválida');
@@ -146,13 +174,19 @@ class TweetController extends Controller
         $google_client = new Client(['base_uri' => env('GOOGLE_FACTCHECK_ROUTE')]);
         $fact_checks=[];
         foreach ($tweet->annotations as $a) {
-            $res = $google_client->request('GET', 
+            try {
+                $res = $google_client->request('GET', 
                 '/v1alpha1/claims:search?key='.env('GOOGLE_FACTCHECK_KEY').'&query='.$a->name.'&languageCode=es&pageSize=10&maxAgeDays=14'
-            );
-            $response = json_decode($res->getBody());
-            if(isset($response->claims)){
-                $fact_checks=array_merge($fact_checks,$response->claims);
+                );
+                $response = json_decode($res->getBody());
+                if(isset($response->claims)){
+                    $fact_checks=array_merge($fact_checks,$response->claims);
+                }
+            } catch (\Throwable $th) {
+                $fact_checks=[];
+                return view('tweet-detail',compact('tweet','fact_checks'));
             }
+            
         }
         return view('tweet-detail',compact('tweet','fact_checks'));
     }

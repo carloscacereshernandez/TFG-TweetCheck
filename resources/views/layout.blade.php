@@ -65,10 +65,10 @@
                 <a class="nav-link nav-menu-item @if(Request::path() === 'verify') active @endif " href="{{route('verify-form')}}"><i class="fa-solid fa-magnifying-glass"></i> Verificar tweet</a>
             </li>
             <li class="nav-item nav-menu-item">
-                <a class="nav-link nav-menu-item" href="#"><i class="fa-solid fa-hashtag"></i> Hashtags</a>
+                <a class="nav-link nav-menu-item @if(Request::path() === 'hashtags') active @endif" href="{{route('hashtags')}}"><i class="fa-solid fa-hashtag"></i> Hashtags</a>
             </li>
             <li class="nav-item nav-menu-item">
-                <a class="nav-link nav-menu-item" href="#"><i class="fa-solid fa-users"></i> Usuarios</a>
+                <a class="nav-link nav-menu-item @if(Request::path() === 'users') active @endif" href="{{route('users')}}"><i class="fa-solid fa-users"></i> Usuarios</a>
             </li>
         </ul>
         <div class="gradient"></div>

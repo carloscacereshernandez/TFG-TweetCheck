@@ -10,6 +10,6 @@ class TwitterUser extends Model
     use HasFactory;
 
     public function tweets(){
-        return $this->hasMany(Tweet::class);
+        return $this->hasMany(Tweet::class,'user_id');
     }
 }

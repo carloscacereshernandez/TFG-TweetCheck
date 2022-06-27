@@ -47,14 +47,14 @@
                         Polaridad
                         <div class="row mb-3">
                             <div class="col pr-0 mr-0">
-                                <div class="progress progress-lg justify-content-end" id="polarity1">
+                                <div class="progress progress-lg justify-content-end border-right" style="border-radius:10px 0 0 10px" id="polarity1">
                                     @if ($tweet->polarity < 0)
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{abs($tweet->polarity*100)}}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">-{{abs($tweet->polarity*100)}}% </div>
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{abs($tweet->polarity*100)}}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >-{{abs($tweet->polarity*100)}}% </div>
                                     @endif
                                 </div>
                             </div>
                             <div class="col pl-0 ml-0">
-                                <div class="progress progress-lg" id="polarity2">
+                                <div class="progress progress-lg border-left" style="border-radius:0 10px 10px 0" id="polarity2">
                                     @if ($tweet->polarity >= 0)
                                         <div class="progress-bar bg-success text-dark" role="progressbar" style="width: {{abs($tweet->polarity*100)}}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">+{{abs($tweet->polarity*100)}}%</div>
                                     @endif
@@ -132,7 +132,9 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <p class="card-title">{{$fact->text}}</p>
+                                @if(isset($fact->claimDate))
                                 <small>{{substr_replace($fact->claimDate,"", -10)}}</small>
+                                @endif
                                 <br>
                                 <small> <b>Verificado por:</b> </small>
                                 <ul class="list-group list-group-flush">

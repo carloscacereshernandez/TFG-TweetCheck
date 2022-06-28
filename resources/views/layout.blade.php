@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-            
+    <title>TweetCheck</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">        
         <!-- CSS Dependencies -->
         <link href="{{ asset('css/main.css') }}" rel="stylesheet">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -21,7 +21,10 @@
             <span class="navbar-toggler-icon"></span>
             </button>
             -->
-            <a class="navbar-brand mx-auto" href="#">Navbar</a>
+            <a class="navbar-brand mx-auto" href="#">
+                <img src="/images/logo.png" class="d-block d-md-none" height="20px" alt="">
+                <img src="/images/logo.png" class="d-none d-md-block" height="30px" alt="">
+            </a>
             <!--
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                 

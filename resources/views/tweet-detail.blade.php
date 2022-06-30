@@ -77,7 +77,7 @@
                                 </div>
                             </div>
                         </div>
-                        Reclamos en el texto: 
+                        Afirmaciones en el texto (Claims): 
                         @if ($tweet->claim)
                             <button type="button" class=" ml-3 btn btn-outline-success btn-pill disabled">Si</button>
                         @else
